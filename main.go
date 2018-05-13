@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 func main() {
@@ -18,7 +21,9 @@ func main() {
 		return
 	}
 
-	all, err := ioutil.ReadAll(resp.Body)
+	utf8Reader := transform.NewReader(resp.Body,
+		simplifiedchinese.GBK.NewDecoder())
+	all, err := ioutil.ReadAll(utf8Reader)
 	if err != nil {
 		panic(err)
 	}
