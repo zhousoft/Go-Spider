@@ -16,15 +16,10 @@ func Run(seeds ...Request) {
 		r := requests[0]
 		requests = requests[1:]
 
-		log.Printf("Fetching: %s", r.Url)
-
-		body, err := fetcher.Fetch(r.Url)
+		parseResult, err := woker(r)
 		if err != nil {
-			log.Printf("Fetch error, url: %s, error: %v", r.Url, err)
 			continue
 		}
-
-		parseResult := r.ParserFunc(body)
 
 		requests = append(requests,
 			parseResult.Requests...) //新链接进队  ...可以将数组打散进行append
@@ -33,4 +28,16 @@ func Run(seeds ...Request) {
 			log.Printf("Got item: %v", item)
 		}
 	}
+}
+
+//woker 获取并解析url，返回解析结果
+func woker(r Request) (ParseResult, error) {
+	log.Printf("Fetching: %s", r.Url)
+	body, err := fetcher.Fetch(r.Url)
+	if err != nil {
+		log.Printf("Fetch error, url: %s, error: %v", r.Url, err)
+		return ParseResult{}, err
+	}
+
+	return r.ParserFunc(body), nil
 }
