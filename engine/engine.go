@@ -29,7 +29,7 @@ func Run(seeds ...Request) {
 			parseResult.Requests...) //新链接进队  ...可以将数组打散进行append
 
 		for _, item := range parseResult.Items {
-			log.Printf("Got item: %s", item)
+			log.Printf("Got item: %v", item)
 		}
 	}
 }

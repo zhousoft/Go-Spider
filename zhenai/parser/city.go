@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-const cityRe = `<th><a href="http://album.zhenai.com/u/([0-9]+)"[^>]*>([^<]+)</a>`
+const cityRe = `<th><a href="(http://album.zhenai.com/u/[0-9]+)"[^>]*>([^<]+)</a>`
 
 //ParseCity 城市解析
 func ParseCity(contents []byte) engine.ParseResult {
@@ -18,8 +18,10 @@ func ParseCity(contents []byte) engine.ParseResult {
 		result.Items = append(result.Items, "User: "+string(m[2]))
 		result.Requests = append(
 			result.Requests, engine.Request{
-				Url:        string(m[1]),
-				ParserFunc: engine.NilParser,
+				Url: string(m[1]),
+				ParserFunc: func(c []byte) engine.ParseResult {
+					return ParseProfile(c, string(m[2]))
+				},
 			})
 	}
 	return result
