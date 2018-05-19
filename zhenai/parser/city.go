@@ -15,12 +15,16 @@ func ParseCity(contents []byte) engine.ParseResult {
 
 	result := engine.ParseResult{}
 	for _, m := range matches {
-		result.Items = append(result.Items, "User: "+string(m[2]))
+		//将name提取出来，因为在下面的闭包函数中需要传入name值
+		//如果不将name提取出来,直接传入m[2]的话，会导致所有函数
+		//共享一份m，结果时所有用户名都一样
+		name := string(m[2])
+		result.Items = append(result.Items, "User: "+name)
 		result.Requests = append(
 			result.Requests, engine.Request{
 				Url: string(m[1]),
 				ParserFunc: func(c []byte) engine.ParseResult {
-					return ParseProfile(c, string(m[2]))
+					return ParseProfile(c, name)
 				},
 			})
 	}
