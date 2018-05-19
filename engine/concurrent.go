@@ -10,10 +10,14 @@ type ConcurrentEngine struct {
 }
 
 type Scheduler interface {
+	ReadyNotifier
 	Submit(Request)
-	ConfigMasterWokerChan(chan Request)
-	WokerReady(chan Request)
+	WokerChan() chan Request
 	Run()
+}
+
+type ReadyNotifier interface {
+	WokerReady(chan Request)
 }
 
 func (e *ConcurrentEngine) Run(seeds ...Request) {
@@ -21,7 +25,7 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	out := make(chan ParseResult)
 	e.Scheduler.Run()
 	for i := 0; i < e.WokerCount; i++ {
-		createWoker(out, e.Scheduler)
+		createWoker(e.Scheduler.WokerChan(), out, e.Scheduler)
 	}
 
 	for _, url := range seeds {
@@ -41,11 +45,10 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	}
 }
 
-func createWoker(out chan ParseResult, s Scheduler) {
-	in := make(chan Request)
+func createWoker(in chan Request, out chan ParseResult, ready ReadyNotifier) {
 	go func() {
 		for {
-			s.WokerReady(in)
+			ready.WokerReady(in)
 			request := <-in
 			result, err := woker(request)
 			if err != nil {

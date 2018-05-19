@@ -9,8 +9,8 @@ type QueuedScheduler struct {
 	wokerChan   chan chan engine.Request
 }
 
-func (s *QueuedScheduler) ConfigMasterWokerChan(c chan engine.Request) {
-	s.requestChan = c
+func (s *QueuedScheduler) WokerChan() chan engine.Request {
+	return make(chan engine.Request)
 }
 
 func (s *QueuedScheduler) WokerReady(w chan engine.Request) {
