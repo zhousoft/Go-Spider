@@ -8,7 +8,7 @@ import (
 
 func main() {
 	e := engine.ConcurrentEngine{
-		Scheduler:  &scheduler.SimpleScheduler{},
+		Scheduler:  &scheduler.QueuedScheduler{},
 		WokerCount: 2,
 	}
 	e.Run(engine.Request{

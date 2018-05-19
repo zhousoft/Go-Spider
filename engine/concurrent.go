@@ -12,16 +12,16 @@ type ConcurrentEngine struct {
 type Scheduler interface {
 	Submit(Request)
 	ConfigMasterWokerChan(chan Request)
+	WokerReady(chan Request)
+	Run()
 }
 
 func (e *ConcurrentEngine) Run(seeds ...Request) {
 
-	in := make(chan Request)
 	out := make(chan ParseResult)
-	e.Scheduler.ConfigMasterWokerChan(in)
-
+	e.Scheduler.Run()
 	for i := 0; i < e.WokerCount; i++ {
-		createWoker(in, out)
+		createWoker(out, e.Scheduler)
 	}
 
 	for _, url := range seeds {
@@ -41,9 +41,11 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	}
 }
 
-func createWoker(in chan Request, out chan ParseResult) {
+func createWoker(out chan ParseResult, s Scheduler) {
+	in := make(chan Request)
 	go func() {
 		for {
+			s.WokerReady(in)
 			request := <-in
 			result, err := woker(request)
 			if err != nil {
