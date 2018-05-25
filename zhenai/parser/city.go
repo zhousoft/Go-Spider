@@ -24,7 +24,6 @@ func ParseCity(contents []byte) engine.ParseResult {
 		//如果不将name提取出来,直接传入m[2]的话，会导致所有函数
 		//共享一份m，结果时所有用户名都一样
 		name := string(m[2])
-		result.Items = append(result.Items, "User: "+name)
 		result.Requests = append(
 			result.Requests, engine.Request{
 				Url: string(m[1]),
